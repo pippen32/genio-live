@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>El Genio de la Suerte — EN VIVO</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; background:#000; overflow:hidden;
+    font-family:"Trebuchet MS","Segoe UI",Verdana,sans-serif; }
+  #stage { position:absolute; left:50%; top:50%; width:1080px; height:1920px;
+    transform-origin:center center; background:#1a0d00; overflow:hidden; }
+  video.bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    opacity:0; transition:opacity .6s ease; }
+  video.bg.on { opacity:1; }
+  #boothPoster { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+  #vivo { position:absolute; top:34px; left:30px; background:#d21f2c; color:#fff;
+    font-size:44px; font-weight:900; letter-spacing:2px; padding:12px 30px 12px 22px;
+    border-radius:18px; display:flex; align-items:center; gap:16px;
+    box-shadow:0 6px 24px rgba(0,0,0,.45); z-index:5; }
+  #vivo .dot { width:26px; height:26px; border-radius:50%; background:#fff;
+    animation:pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+  #likes { position:absolute; top:138px; left:30px; background:rgba(20,8,0,.62);
+    color:#fff; font-size:42px; font-weight:800; padding:8px 26px; border-radius:16px; z-index:5; }
+  #likes .heart { color:#ff3b57; margin-right:10px; }
+
+  #tablita { position:absolute; top:30px; right:26px; width:392px; z-index:5;
+    background:rgba(26,13,0,.82); border:5px solid #ffd21f; border-radius:22px;
+    padding:16px 20px 14px; color:#fff; box-shadow:0 8px 30px rgba(0,0,0,.5); }
+  #tablita h2 { color:#ffd21f; font-size:37px; text-align:center; letter-spacing:1px;
+    margin-bottom:10px; font-family:Georgia,"Times New Roman",serif; }
+  #tablita .row { display:flex; align-items:center; gap:12px; margin:9px 0; }
+  #tablita .emo { font-size:38px; width:48px; text-align:center; }
+  #tablita .t1 { color:#ffd21f; font-weight:900; font-size:29px; line-height:1.05; }
+  #tablita .t2 { font-size:24px; line-height:1.1; opacity:.95; }
+
+  #titulo { position:absolute; top:400px; left:0; width:100%; text-align:center; z-index:4;
+    color:#ffd21f; font-family:Georgia,"Times New Roman",serif; font-weight:900;
+    font-size:64px; letter-spacing:2px;
+    text-shadow:0 4px 22px rgba(0,0,0,.85), 0 0 46px rgba(255,180,0,.35); pointer-events:none; }
+
+  #answerBox { position:absolute; left:50%; bottom:308px; transform:translateX(-50%) scale(.92);
+    width:920px; z-index:8; background:rgba(24,11,0,.88); border:5px solid #ffd21f;
+    border-radius:28px; padding:26px 36px 30px; text-align:center; color:#fff;
+    opacity:0; pointer-events:none; transition:opacity .35s ease, transform .35s ease;
+    box-shadow:0 14px 44px rgba(0,0,0,.6); }
+  #answerBox.show { opacity:1; transform:translateX(-50%) scale(1); }
+  #giftPill { display:inline-block; background:#ffd21f; color:#3a2400; font-weight:900;
+    font-size:27px; padding:7px 24px; border-radius:999px; margin-bottom:14px; letter-spacing:.5px; }
+  #ansName { color:#ffd21f; font-size:46px; font-weight:900; margin-bottom:8px; }
+  #ansQuestion { font-size:40px; line-height:1.25; font-style:italic; }
+
+  #verdict { position:absolute; left:0; top:760px; width:100%; text-align:center; z-index:9;
+    font-size:250px; font-weight:900; color:#ffd21f; letter-spacing:4px;
+    text-shadow:0 0 34px rgba(255,170,0,.95), 0 10px 44px rgba(0,0,0,.75), 0 0 130px rgba(255,210,31,.8);
+    opacity:0; transform:scale(.5); pointer-events:none; }
+  #verdict.pop { animation:pop 2.6s ease forwards; }
+
+  #celeb { position:absolute; left:0; top:218px; width:100%; text-align:center; z-index:10;
+    opacity:0; pointer-events:none; padding:0 50px; }
+  #celeb.show { animation:celebIn 4.4s ease forwards; }
+  #celeb .cname { font-size:92px; font-weight:900; color:#ffd21f; letter-spacing:2px;
+    line-height:1.05; text-shadow:0 0 34px rgba(255,170,0,.95), 0 8px 40px rgba(0,0,0,.8); }
+  #celeb .cline { font-size:43px; font-weight:800; color:#fff; margin-top:14px; line-height:1.25;
+    text-shadow:0 3px 16px rgba(0,0,0,.9); }
+  @keyframes celebIn { 0%{opacity:0; transform:scale(.7)} 10%{opacity:1; transform:scale(1.05)}
+    16%{transform:scale(1)} 82%{opacity:1} 100%{opacity:0; transform:scale(1.02)} }
+  @keyframes pop { 0%{opacity:0; transform:scale(.5)} 12%{opacity:1; transform:scale(1.12)}
+    22%{transform:scale(1)} 78%{opacity:1} 100%{opacity:0; transform:scale(1.04)} }
+
+  #filler { position:absolute; left:50%; bottom:238px; transform:translateX(-50%);
+    width:940px; z-index:6; background:rgba(24,11,0,.66); color:#ffe9a8;
+    font-size:36px; font-weight:700; text-align:center; padding:14px 34px;
+    border-radius:28px; opacity:0; transition:opacity .8s ease; line-height:1.3; }
+  #filler.show { opacity:1; }
+
+  #queue { position:absolute; left:0; bottom:118px; width:100%; z-index:6; text-align:center;
+    color:#fff; font-size:34px; padding:16px 20px; background:rgba(24,11,0,.55);
+    opacity:0; transition:opacity .5s ease; }
+  #queue.show { opacity:1; }
+  #queue .lbl { color:#ffd21f; font-weight:900; margin-right:14px; letter-spacing:1px; }
+
+  #foot { position:absolute; left:0; bottom:44px; width:100%; text-align:center; z-index:6;
+    color:#ffe9a8; font-size:31px; font-weight:700; letter-spacing:1px;
+    text-shadow:0 2px 12px rgba(0,0,0,.9); }
+
+  #gate { position:absolute; inset:0; z-index:50; background:rgba(10,4,0,.82);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#ffd21f; cursor:pointer; text-align:center; padding:60px; }
+  #gate .big { font-size:64px; font-weight:900; line-height:1.2; margin-bottom:26px;
+    font-family:Georgia,"Times New Roman",serif; }
+  #gate .small { font-size:36px; color:#fff; line-height:1.45; max-width:860px; }
+  #gate.off { display:none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="boothPoster" src="media/booth.jpg" alt="">
+  <video id="vidIdle"   class="bg" src="media/idle.mp4"   poster="media/booth.jpg" muted loop playsinline></video>
+  <video id="vidAnswer" class="bg" src="media/answer.mp4" poster="media/booth.jpg" muted loop playsinline></video>
+
+  <div id="vivo"><span class="dot"></span>EN VIVO</div>
+  <div id="likes"><span class="heart">❤</span><span id="likesNum">0</span></div>
+
+  <div id="tablita">
+    <h2>LA TABLITA</h2>
+    <div class="row"><div class="emo">🌹</div><div><div class="t1">ROSA</div><div class="t2">Pregunta SÍ o NO (te pone en la fila)</div></div></div>
+    <div class="row"><div class="emo">🎁</div><div><div class="t1">REGALO</div><div class="t2">Respuesta con explicación</div></div></div>
+    <div class="row"><div class="emo">🚀</div><div><div class="t1">COHETE</div><div class="t2">Respuesta completa + consejo</div></div></div>
+  </div>
+
+  <div id="titulo">EL GENIO DE LA SUERTE</div>
+
+  <div id="answerBox">
+    <div id="giftPill">🌹 envió una ROSA</div>
+    <div id="ansName">@—</div>
+    <div id="ansQuestion">«…»</div>
+  </div>
+
+  <div id="verdict">¡SÍ!</div>
+  <div id="celeb"><div class="cname"></div><div class="cline"></div></div>
+  <div id="filler"></div>
+  <div id="queue"><span class="lbl">SIGUIENTES EN LA FILA:</span><span id="queueNames"></span></div>
+  <div id="foot">⭐ Show de entretenimiento ⭐</div>
+
+  <div id="gate">
+    <div class="big">🔊 TOCA AQUÍ PARA<br>ACTIVAR EL SONIDO</div>
+    <div class="small">El Genio necesita un toque para poder hablar.<br>Toca una vez y el show corre solo.</div>
+  </div>
+</div>
+
+<audio id="music" src="media/music-bed.mp3" loop preload="auto"></audio>
+<audio id="voice" preload="auto"></audio>
+<audio id="fillerVoice" preload="auto"></audio>
+
+<script>
+(function(){
+  "use strict";
+  var stage = document.getElementById('stage');
+  function fit(){
+    var s = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit); fit();
+
+  var vidIdle = document.getElementById('vidIdle'),
+      vidAnswer = document.getElementById('vidAnswer'),
+      music = document.getElementById('music'),
+      voice = document.getElementById('voice'),
+      fillerVoice = document.getElementById('fillerVoice'),
+      answerBox = document.getElementById('answerBox'),
+      giftPill = document.getElementById('giftPill'),
+      ansName = document.getElementById('ansName'),
+      ansQuestion = document.getElementById('ansQuestion'),
+      verdictEl = document.getElementById('verdict'),
+      celebEl = document.getElementById('celeb'),
+      celebName = celebEl.querySelector('.cname'),
+      celebLine = celebEl.querySelector('.cline'),
+      fillerEl = document.getElementById('filler'),
+      queueEl = document.getElementById('queue'),
+      queueNames = document.getElementById('queueNames'),
+      likesNum = document.getElementById('likesNum'),
+      gate = document.getElementById('gate');
+
+  music.volume = 0.14; voice.volume = 1.0; fillerVoice.volume = 0.9;
+  var soundOn = false, answering = false, lastSeq = -1, likesShown = 0, feedLikes = 0, upsellShown = false;
+
+  vidIdle.classList.add('on');
+  vidIdle.play().catch(function(){});
+
+  gate.addEventListener('click', function(){
+    soundOn = true; gate.classList.add('off');
+    music.play().catch(function(){});
+    vidAnswer.play().then(function(){ vidAnswer.pause(); }).catch(function(){});
+  });
+
+  setInterval(function(){
+    likesShown += Math.floor(Math.random()*4);
+    if (feedLikes > likesShown) likesShown = feedLikes;
+    likesNum.textContent = likesShown.toLocaleString('en-US');
+  }, 3000);
+
+  var FILLER_TEXT = [
+    '¡Tap tap a la pantalla!',
+    '¡Compartan el live!',
+    'La fila avanza… el que regala, pregunta primero',
+    'Pregunten… la bola de cristal lo ve todo',
+    'Bienvenidos los que van llegando…',
+    'La fila está larga… el que manda regalo pasa AL FRENTE ahora mismo 🚀',
+    'Cuando caiga el primer cohete 🚀, el Genio hace UNA lectura completa GRATIS pa\' la fila',
+    '¿Quieres tu lectura COMPLETA y PRIVADA, sin fila y sin que nadie la oiga? Pídela en mi tienda — enlace en mi perfil. Te llega en video, solo pa\' ti 🔮'
+  ];
+  var FILLER_MP3 = ['audio/filler1.mp3','audio/filler2.mp3','audio/filler3.mp3','audio/filler4.mp3','audio/filler5.mp3','audio/filler6.mp3','audio/filler7.mp3','audio/filler8.mp3'];
+
+  /* Rutina de venta (Omar, 21-nov): suspenso tras la rosa y celebración
+     cuando entra un regalo grande, pa' empujar los niveles altos. */
+  var ROSA_CLOSES = [
+    'La bola dice el veredicto… pero hay algo detrás que con la rosa no te puedo contar 👀',
+    'Eso fue solo la superficie… la explicación completa vive en el regalo 🎁',
+    'El Genio vio el porqué… pero el porqué se cuenta con el regalo 👀',
+    'Hay un detalle escondido en tu respuesta… y ese detalle solo sale con la explicación del regalo 🎁',
+    'La bola se nubló justo en la parte buena… y la parte buena es del regalo 👀'
+  ];
+  var CELEB_LINES = {
+    regalo: ['¡Llegó un REGALO! ¡Gracias, gracias! ¡La bola se ilumina! ✨',
+             '¡Así se hace! ¡El Genio está feliz! ✨'],
+    cohete: ['¡Llegó un COHETE! ¡ESTO ES GRANDE! ¡La bola está que echa chispas! ✨',
+             '¡La noche se prendió! ¡Gracias, gracias! ✨']
+  };
+  var fi = 0;
+  setInterval(function(){
+    if (answering) return;
+    fillerEl.textContent = FILLER_TEXT[fi % FILLER_TEXT.length];
+    fillerEl.classList.add('show');
+    setTimeout(function(){ fillerEl.classList.remove('show'); }, 9000);
+    fi++;
+  }, 20000);
+  setInterval(function(){
+    if (!soundOn || answering || !voice.paused) return;
+    if (Math.random() < 0.55) return;
+    fillerVoice.src = FILLER_MP3[Math.floor(Math.random()*FILLER_MP3.length)];
+    fillerVoice.play().catch(function(){});
+  }, 45000);
+
+  var TIERS = {
+    rosa:   { pill:'🌹 envió una ROSA' },
+    regalo: { pill:'🎁 envió un REGALO' },
+    cohete: { pill:'🚀 envió un COHETE' }
+  };
+  var verdictTimer = null, hideTimer = null;
+
+  function setClip(which){
+    if (which === 'answer'){ vidAnswer.classList.add('on'); vidIdle.classList.remove('on'); vidAnswer.play().catch(function(){}); }
+    else { vidIdle.classList.add('on'); vidAnswer.classList.remove('on'); vidIdle.play().catch(function(){}); }
+  }
+  function endAnswer(){
+    answering = false;
+    answerBox.classList.remove('show');
+    setClip('idle');
+    if (upsellShown){
+      upsellShown = false;
+      setTimeout(function(){ fillerEl.classList.remove('show'); }, 5000);
+    }
+  }
+  function playAnswer(cur){
+    answering = true;
+    var t = TIERS[cur.tier] || TIERS.rosa;
+    giftPill.textContent = t.pill;
+    ansName.textContent = cur.name;
+    ansQuestion.textContent = '«' + cur.question + '»';
+    answerBox.classList.add('show');
+    if (cur.tier === 'regalo' || cur.tier === 'cohete'){
+      var bank = CELEB_LINES[cur.tier];
+      celebName.textContent = cur.name;
+      celebLine.textContent = bank[(cur.id || 0) % bank.length];
+      celebEl.classList.remove('show'); void celebEl.offsetWidth; celebEl.classList.add('show');
+    }
+    if (cur.tier === 'rosa'){
+      fillerEl.textContent = cur.upsell || ROSA_CLOSES[(cur.id || 0) % ROSA_CLOSES.length];
+      fillerEl.classList.add('show');
+      upsellShown = true;
+    } else {
+      fillerEl.classList.remove('show');
+    }
+    setClip('answer');
+    if (soundOn){
+      voice.src = cur.audio + '?v=' + cur.id;
+      voice.currentTime = 0;
+      var played = voice.play();
+      if (played) played.catch(function(){});
+      var delay = (typeof cur.verdict_delay_s === 'number' ? cur.verdict_delay_s : 3);
+      clearTimeout(verdictTimer);
+      verdictTimer = setTimeout(function(){
+        verdictEl.textContent = (cur.verdict === 'no') ? '¡NO!' : '¡SÍ!';
+        verdictEl.classList.remove('pop'); void verdictEl.offsetWidth; verdictEl.classList.add('pop');
+      }, Math.max(0, delay*1000));
+      voice.onended = function(){ clearTimeout(hideTimer); hideTimer = setTimeout(endAnswer, 2500); };
+      clearTimeout(hideTimer); hideTimer = setTimeout(endAnswer, 45000);
+    } else {
+      setTimeout(endAnswer, 9000);
+    }
+  }
+
+  function poll(){
+    fetch('feed.json?ts=' + Date.now(), { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(f){
+        if (typeof f.likes === 'number') feedLikes = f.likes;
+        if (Array.isArray(f.queue)){
+          if (f.queue.length){
+            queueNames.textContent = f.queue.join('  ·  ');
+            queueEl.classList.add('show');
+          } else queueEl.classList.remove('show');
+        }
+        if (f.current && typeof f.seq === 'number' && f.seq !== lastSeq && !answering){
+          lastSeq = f.seq;
+          playAnswer(f.current);
+        }
+      })
+      .catch(function(){});
+  }
+  setInterval(poll, 2000); poll();
+})();
+</script>
+</body>
+</html>
